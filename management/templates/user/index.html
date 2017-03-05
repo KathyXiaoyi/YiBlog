@@ -1,0 +1,91 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block content %}
+<form class="form-inline definewidth m20"  action="/admin/user/search" method="post">
+    {% csrf_token %}
+    用户名：
+    <input type="text" name="keywords" id="txtKeyword" class="abc input-default" placeholder="请输入用户名..." value="">&nbsp;&nbsp;
+    <button id="btnSearch" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+        <button type="button" class="btn btn-success" id="btnAddUser">新增用户</button>
+</form>
+<table class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th>用户ID</th>
+        <th>用户名</th>
+        <th>角色</th>
+        <th>邮箱</th>
+        <th>创建时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+     {% for user in user_list %}
+	     <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.create_date|date:"Y-m-d H:i:s" }}</td>
+            <td>
+                <a href="/admin/user/edit?id={{ user.id }}">编辑</a>&nbsp;&nbsp;
+                <a href="#" id="btnDelete" onclick="javascript:deleteUser({{ user.id }})">删除</a>
+            </td>
+        </tr>
+     {% empty %}
+        <tr>
+            <td>当前暂无用户信息！</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+            $("#btnAddUser").click(function(){
+                window.location.href = "/admin/user/add";
+            })
+
+            $("#btnSearch").click(function(){
+                 keywords = $("#txtKeyword").val();
+                 if(isEmpty(keywords)){
+                    alert("搜索关键字不能为空！");
+                    return;
+                 }
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+
+        function deleteUser(userId){
+            if(isEmpty(userId)){
+                alert("出现错误：待删除的用户ID不能为空！");
+                return;
+            }
+            result = confirm("是否确定删除该用户？");
+            if(result){
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/user/delete",
+                    dataType: "json",
+                    data: {user_id:userId},
+                    success:function(result){
+                        alert(result.info);
+                        location.href = "user"
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+            }
+        }
+</script>
+{% endblock %}
+

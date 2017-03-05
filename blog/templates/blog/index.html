@@ -1,0 +1,71 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<article>
+	<div class="banner">
+		<ul class="texts">
+			<p>Linus Torvalds :</p>
+			<p>“大部分好的程序员编程并不是为了钱或名望，而只是因为纯粹的乐趣。”</p>
+		</ul>
+	</div>
+	<div class="bloglist">
+		<h2>
+			<p>
+				<span>推荐</span>博客
+			</p>
+		</h2>
+		{% for blog in rec_blog_list %}
+			<div class="blogs">
+				<h3>
+					<a href="/detail?id={{ blog.id }}">{{ blog.name }}</a>
+				</h3>
+				<figure>
+					<img src={{ blog.image }}>
+				</figure>
+				<ul>
+					<p>{{ blog.content|slice:":270"  }}</p>
+					<a href="/detail?id={{ blog.id }}" class="readmore">阅读全文&gt;&gt;</a>
+				</ul>
+				<p class="autor">
+					<span>作者：小乙</span><span>分组：【<a href="/blog?id={{ blog.group.id }}">{{ blog.group.group_name }}</a>】
+					</span>
+				</p>
+				<div class="dateview">{{ blog.upload_date|date:"Y-m-d" }}</div>
+			</div>
+		{% empty %}
+			<li><a href="/">暂无推荐博客内容</a></li>
+		{% endfor %}
+
+	</div>
+</article>
+{% endblock %}
+
+<!--{% block extrajs %}-->
+<!--<script type="text/javascript">-->
+    <!--function getCookie(name) {-->
+        <!--var cookieValue = null;-->
+        <!--if (document.cookie && document.cookie != '') {-->
+            <!--var cookies = document.cookie.split(';');-->
+            <!--for (var i = 0; i < cookies.length; i++) {-->
+                <!--var cookie = cookies[i].trim();-->
+                <!--if (cookie.substring(0, name.length + 1) == (name + '=')) {-->
+                    <!--cookieValue = decodeURIComponent(cookie.substring(name.length + 1));-->
+                    <!--break;-->
+                <!--}-->
+            <!--}-->
+        <!--}-->
+        <!--return cookieValue;-->
+    <!--}-->
+
+    <!--$.ajaxSetup({-->
+      <!--beforeSend: function(xhr, settings){-->
+          <!--var csrftoken = getCookie('csrftoken');-->
+          <!--xhr.setRequestHeader("X-CSRFToken", csrftoken);-->
+      <!--}-->
+    <!--});-->
+
+	<!--blogDetail(id){-->
+		<!--location.href = "detail?id=" + id;-->
+	<!--}-->
+
+<!--</script>-->
+<!--{% endblock %}-->

@@ -1,0 +1,110 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+
+<table class="table table-bordered table-hover marginTopLeft">
+    {% csrf_token %}
+    <tr>
+        <td width="10%" class="tableleft">用户名*</td>
+        <td><input id="userName" type="text" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">密码*</td>
+         <td><input id="password" type="password" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">确认密码*</td>
+         <td><input id="confirmPsw" type="password" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">邮箱</td>
+         <td><input id="email" type="email" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">角色*</td>
+        <td><select style="width:486px" id="roleSelect">
+                {% for role in role_list %}
+                    <option value={{ role.id }}>{{ role.role_name }}</option>
+                {% empty %}
+                    <script type="text/javascript">
+                        alert("角色信息加载出错，请重试！");
+                    </script>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="tableleft"></td>
+        <td>
+            <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+        </td>
+    </tr>
+</table>
+
+{% endblock %}
+
+{% block extrajs %}
+<script>
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+
+        $(document).ready(function() {
+            $("#btnSave").click(function() {
+                userName = $("#userName").val();
+                password = $("#password").val();
+                confirmPsw = $("#confirmPsw").val();
+                email = $("#email").val();
+                <!--被选中的角色ID-->
+                selectedRole = $("#roleSelect option:selected").val();
+
+                if(isEmpty(userName)){
+                    alert("用户名不能为空");
+                    return;
+                }
+                if(isEmpty(password)){
+                    alert("密码不能为空");
+                    return;
+                }
+                if(isEmpty(confirmPsw)){
+                    alert("确认密码不能为空！");
+                    return;
+                }
+                if(password != confirmPsw){
+                    alert("两次输入的密码不一致！请重新输入！");
+                    return;
+                }
+
+                $.ajax({
+                    type:"POST",
+                    url:"add",
+                    dataType: "json",
+                    data: {user_name:userName, password:password, email:email, role:selectedRole},
+                    success:function(result){
+                        alert(result.info);
+                        if(result.status == "1"){
+                            $("#userName").val("");
+                            $("#password").val("");
+                            $("#confirmPsw").val("");
+                            $("#email").val("");
+                            $("#roleSelect").val("1");
+                        }
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+		    });
+		});
+
+</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+<table class="table table-bordered table-hover marginTopLeft">
+    {% csrf_token %}
+    <tr>
+        <td id="blogName" width="10%" class="tableleft">博客名</td>
+        <td>{{ blog.name }}</td>
+    </tr>
+
+    <tr>
+        <td width="10%" class="tableleft">博客关键字*</td>
+         <td><input id="blogKeyword" type="text" name="grouptitle" value={{ blog.keywords }} style="width:486px"/>
+           <span>（多个关键字请使用；或;分割）</span>
+         </td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客分组*</td>
+         <td>
+             <select style="width:486px" id="groupSelect">
+                {% for group in group_list %}
+                    <option value={{ group.id }}>{{ group.group_name }}</option>
+                {% empty %}
+                    <script type="text/javascript">
+                        alert("博客分组信息加载出错，请重试！");
+                    </script>
+                {% endfor %}
+                </select>
+    </tr>
+    <!--<tr>-->
+        <!--<td width="10%" class="tableleft">上传时间</td>-->
+        <!--<td><input type="text" name="grouptitle" value={{ blog.upload_date|date:"Y-m-d H:i:s" }}  style="width:486px"/></td>-->
+    <!--</tr>-->
+    <tr>
+        <td width="10%" class="tableleft">推荐指数*</td>
+        <td>
+            <select style="width:486px" id="recIndexSelect">
+                    <option value="1">1星</option>
+                    <option value="2">2星</option>
+                    <option value="3">3星</option>
+                    <option value="4">4星</option>
+                    <option value="5">5星</option>
+            </select>
+         <span>（推荐星数越多，表示该博客的推荐级别越高）</span>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客类型*</td>
+        <td>
+            <select style="width:486px" id="typeSelect">
+                    <option value="1">原创</option>
+                    <option value="2">转载</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="tableleft">博客内容*</td>
+        <td ><textarea rows="5" style="width:486px" id="blogContent">
+            {{ blog.content }}
+        </textarea></td>
+    </tr>
+    <tr>
+        <td class="tableleft"></td>
+        <td>
+            <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+        </td>
+    </tr>
+</table>
+
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+            $("#typeSelect").val({{ blog.type }});
+            $("#groupSelect").val({{ blog.group.id }});
+            $("#recIndexSelect").val({{ blog.recommend_level }});
+
+            $("#btnSave").click(function(){
+                editBlog();
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+        <!--修改用户名称-->
+        function editBlog(){
+            id = {{ blog.id }}
+             //参数检查
+            blogKeyword = $("#blogKeyword").val();
+            blogContent = $("#blogContent").val();
+            selectedTypeId = $("#typeSelect option:selected").val();
+            selectedGroupID = $("#groupSelect option:selected").val();
+            selectedRecIndex = $("#recIndexSelect option:selected").val();
+
+            if(isEmpty(blogKeyword)){
+                alert("博客关键字不能为空");
+                return;
+            }
+            if(isEmpty(blogContent)){
+                alert("博客内容不能为空");
+                return;
+            }
+
+            if(isEmpty(selectedTypeId)){
+                alert("请选择博客类型！");
+                return;
+            }
+            if(isEmpty(selectedGroupID)){
+                alert("请选择博客分组！");
+                return;
+            }
+            if(isEmpty(selectedRecIndex)){
+                alert("请选择博客的推荐指数！");
+                return;
+            }
+
+            $.ajax({
+                type:"POST",
+                url:"edit",
+                dataType: "json",
+                data: { blog_id:id, blog_keyword:blogKeyword, blog_content:blogContent, type_id:selectedTypeId,
+                    group_id:selectedGroupID, rec_index:selectedRecIndex},
+                success:function(result){
+                    alert(result.info);
+                    location.href = "/admin/blog"
+                },
+                error:function(data, status, result) {
+                    alert("出现错误：" + status);
+                }
+            });
+         }
+</script>
+{% endblock %}

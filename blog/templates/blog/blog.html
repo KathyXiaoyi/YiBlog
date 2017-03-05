@@ -1,0 +1,40 @@
+{% extends "blog/base.html" %}
+{% load staticfiles %}
+{% block extracss %} 
+<link href="{% static '../../static/css/style.css' %}" rel="stylesheet" /> 
+{% endblock %}
+{% block content %}
+<article>
+	<div class="bloglist">
+			<p style="margin-top:45px"></p>
+			{% for blog in blog_list %}
+				<div class="newblog">
+					<ul style="margin-top:-20px">
+						<h3>
+							<a href="/detail?id={{ blog.id }}">{{ blog.name }}</a>
+						</h3>
+						<div class="autor">
+							<span>作者：小乙</span><span>分组：[<a href="/blog?id={{ blog.group.id }}">{{ blog.group.group_name }}</a>]
+							</span>
+						</div>
+						<p>
+							{{ blog.content|slice:":270"  }}
+							<a href="/detail?id={{ blog.id }}" class="blogs_blogs_readmore">全文</a>
+						</p>
+					</ul>
+					<figure>
+						<img src={{ blog.image }}>
+					</figure>
+					<div class="dateview" >{{ blog.upload_date|date:"Y-m-d" }}</div>
+				</div>
+			{% empty %}
+				<li><a href="/">暂无博客内容</a></li>
+			{% endfor %}
+	<!--<div class="page">-->
+		<!--<a title="Total record"><b>113</b></a><b>1</b><a href="/">2</a><a-->
+			<!--href="/">3</a><a href="/">4</a><a href="/">5</a><a href="/">&gt;</a><a-->
+			<!--href="/">&gt;&gt;</a>-->
+	<!--</div>-->
+</article>
+{% endblock %}
+

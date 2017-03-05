@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>登录</title>
+	<meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap-responsive.css" />
+    <link rel="stylesheet" type="text/css" href="../../static/css/style.css" />
+    <script type="text/javascript" src="../../static/js/jquery.js"></script>
+    <!--<script type="text/javascript" src="../static/Js/jquery.sorted.js"></script>-->
+    <script type="text/javascript" src="../../static/js/bootstrap.js"></script>
+    <script type="text/javascript" src="../../static/js/ckform.js"></script>
+    <script type="text/javascript" src="../../static/js/common.js"></script>
+    <style type="text/css">
+        body {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+			text-align:center;
+        }
+
+        .form-signin {
+            max-width: 300px;
+            padding: 19px 29px 29px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+            -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+        }
+
+        .form-signin .form-signin-heading,
+        .form-signin .checkbox {
+            margin-bottom: 10px;
+        }
+
+        .form-signin input[type="text"],
+        .form-signin input[type="password"] {
+            font-size: 16px;
+            height: auto;
+            margin-bottom: 15px;
+            padding: 7px 9px;
+        }
+		.container{
+		     margin:auto;
+			 position:absolute;
+			 top:0; left:0; right:0; bottom:0;
+			 height:262px;
+			 width:361px;
+		}
+
+    </style>  
+</head>
+<body style="background:url(../../static/images/background.jpg);center; width:100%; height:100%; ">
+<div class="container" >
+    <div class="form-signin">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">登录系统</h2>
+        <input id="userName" type="text" name="username" class="input-block-level" placeholder="用户名">
+        <input id="password" type="password" name="password" class="input-block-level" placeholder="密&nbsp;&nbsp;码">
+        <p><button class="btn btn-large btn-primary" type="submit" id="btnLogin">登录</button></p>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings){
+          var csrftoken = getCookie('csrftoken');
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    });
+
+    $(document).ready(function() {
+        $("#btnLogin").click(function() {
+            userName = $("#userName").val();
+            psw = $("#password").val();
+            if(isEmpty(userName)){
+                alert("请输入用户名！")
+                return;
+            }
+            if(isEmpty(psw)){
+                alert("请输入密码！")
+                return;
+            }
+
+            $.ajax({
+                type:"POST",
+                url:"/admin/login",
+                dataType: "json",
+                data: { username:userName, password:psw },
+                success:function(result){
+                    if(result.status == "1"){
+                        url = "/admin/index?id="+result.userId;
+                        location.href = url;
+                    } else {
+                        alert(result.info);
+                    }
+                },
+                error:function(data, status, errorThrown) {
+                    alert("出现错误：" + status);
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,57 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+<table class="table table-bordered table-hover marginTopLeft">
+    <tr>
+        <td width="10%" class="tableleft">分组名*</td>
+        <td><input id="txtGroupName" type="text" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td class="tableleft"></td>
+        <td>
+            <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+        </td>
+    </tr>
+</table>
+
+{% endblock %}
+
+{% block extrajs %}
+<script>
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+        $(document).ready(function() {
+            $("#btnSave").click(function() {
+                groupName = $("#txtGroupName").val()
+                if(isEmpty(groupName)){
+                    alert("分组名不能为空");
+                    return;
+                }
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/group/add",
+                    dataType: "json",
+                    data: {group_name:groupName},
+                    success:function(result){
+                        alert(result.info);
+                        if(result.status == "1"){
+                            $("#txtGroupName").val("");
+                        }
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+		    });
+		});
+		</script>
+{% endblock %}

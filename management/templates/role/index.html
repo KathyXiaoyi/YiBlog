@@ -1,0 +1,114 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+
+<form class="form-inline definewidth m20" action="/admin/role/search" method="post" >
+    {% csrf_token %}
+    角色名：
+    <input id="txtKeyword" name="keywords" type="text" class="abc input-default" placeholder="请输入角色名..." >&nbsp;&nbsp;
+    <button id="btnSearch" type="submit" class="btn btn-primary">查询</button>
+    <button type="button" class="btn btn-success" id="btnAddRole">新增角色</button>
+</form>
+
+<div id="roleList">
+<table class="table table-bordered table-hover definewidth m10" id="roleTable">
+    <thead>
+    <tr>
+    <tr>
+        <th>角色ID</th>
+        <th>角色名</th>
+        <th>创建时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+	  {% for role in role_list %}
+        <tr>
+            <td>{{ role.id }}</td>
+            <td>{{ role.role_name }}</td>
+            <td>{{ role.create_date|date:"Y-m-d H:i:s" }}</td>
+            <td>
+                <a href="/admin/role/edit?id={{ role.id }}">编辑</a>&nbsp;&nbsp;
+                <a href="#" id="btnDelete" onclick="javascript:deleteRole({{ role.id }})">删除</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>当前暂无角色信息！</td>
+        </tr>
+    {% endfor %}
+</table>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+            $("#btnAddRole").click(function(){
+                window.location.href = "/admin/role/add";
+            })
+
+            $("#btnSearch").click(function(){
+                 keywords = $("#txtKeyword").val();
+                 if(isEmpty(keywords)){
+                    alert("搜索关键字不能为空！");
+                    return;
+                 }
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+        function search(){
+            keywords = $("#txtKeyword").val();
+            if(isEmpty(keywords)){
+               alert("搜索关键字不能为空！");
+               return;
+            }
+            $.ajax({
+                    type:"POST",
+                    url:"/admin/role/search",
+                    data: {keywords:keywords},
+                    success:function(result){
+
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+        }
+
+        function deleteRole(roleId){
+            if(isEmpty(roleId)){
+                alert("出现错误：待删除的角色ID不能为空！");
+                return;
+            }
+            result = confirm("是否确定删除该角色？");
+            if(result){
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/role/delete",
+                    dataType: "json",
+                    data: {role_id:roleId},
+                    success:function(result){
+                        alert(result.info);
+                        location.href = "role"
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+            }
+        }
+</script>
+{% endblock %}
+

@@ -1,0 +1,225 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+<table class="table table-bordered table-hover marginTopLeft">
+    {% csrf_token %}
+    <tr>
+        <td width="10%" class="tableleft">博客名*</td>
+        <td><input id="blogName" type="text" name="grouptitle" value="" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客关键字*</td>
+         <td><input id="blogKeyword" type="text" name="grouptitle" value="" style="width:486px"/>
+          <span>（多个关键字请使用；或;分割）</span>
+         </td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客分组*</td>
+          <td><select style="width:486px" id="groupSelect">
+                {% for group in group_list %}
+                    <option value={{ group.id }}>{{ group.group_name }}</option>
+                {% empty %}
+                    <script type="text/javascript">
+                        alert("博客分组信息加载出错，请重试！");
+                    </script>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">推荐指数*</td>
+        <td><select style="width:486px" id="recIndexSelect">
+                    <option value="1">1星</option>
+                    <option value="2">2星</option>
+                    <option value="3">3星</option>
+                    <option value="4">4星</option>
+                    <option value="5">5星</option>
+            </select>
+            <span>（推荐星数越多，表示该博客的推荐级别越高）</span>
+        </td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客类型*</td>
+         <td><select style="width:486px" id="typeSelect">
+                    <option value="1">原创</option>
+                    <option value="2">转载</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">博客配图</td>
+         <td>
+             <input id="inputfile" type="file" name="image"  style="display:none">
+             <div class="input-append">
+                <input id="imgUpload" class="input-large" type="text" style="width:486px; height:25px" readonly>
+                <span style="margin-left:10px">&nbsp;&nbsp;<a class="btn" onclick="getElementById('inputfile').click()">选择文件</a></span>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="tableleft">博客内容*</td>
+        <td ><textarea id="blogContent" rows="5" style="width:486px"></textarea></td>
+    </tr>
+    <tr>
+        <td class="tableleft"></td>
+        <td>
+            <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+        </td>
+    </tr>
+</table>
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings){
+          var csrftoken = getCookie('csrftoken');
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    });
+
+   $(document).ready(function(){
+
+         $('#inputfile').change(function() {
+            var path = $(this).val();
+            var index = path.lastIndexOf("\\") + 1;
+            path = path.substring(index);
+            $('#imgUpload').val(path);
+         });
+
+         $("#btnSave").click(function(){
+            addBlog();
+          })
+    });
+
+    function addBlog(){
+           //参数检查
+            blogName = $("#blogName").val();
+            blogKeyword = $("#blogKeyword").val();
+            blogContent = $("#blogContent").val();
+            selectedTypeId = $("#typeSelect option:selected").val();
+            selectedGroupID = $("#groupSelect option:selected").val();
+            selectedRecIndex = $("#recIndexSelect option:selected").val();
+
+            if(isEmpty(blogName)){
+                alert("博客名不能为空！");
+                return;
+            }
+            if(isEmpty(blogKeyword)){
+                alert("博客关键字不能为空");
+                return;
+            }
+            if(isEmpty(blogContent)){
+                alert("博客内容不能为空");
+                return;
+            }
+
+            if(isEmpty(selectedTypeId)){
+                alert("请选择博客类型！");
+                return;
+            }
+            if(isEmpty(selectedGroupID)){
+                alert("请选择博客分组！");
+                return;
+            }
+            if(isEmpty(selectedRecIndex)){
+                alert("请选择博客的推荐指数！");
+                return;
+            }
+            defaultUrl = "http://pkuxiaoyi-img.stor.sinaapp.com/defalut000.jpg";
+           //上传图片
+           //创建FormData对象
+           var data = new FormData();
+           var list = $('#inputfile')[0].files;
+          // 未上传图片
+          if(list.length == 0){
+               $.ajax({
+                    type:"POST",
+                    url:"add",
+                    dataType: "json",
+                    data: {blog_name:blogName, blog_keyword:blogKeyword, blog_content:blogContent, type_id:selectedTypeId,
+                        group_id:selectedGroupID, rec_index:selectedRecIndex, img_url: defaultUrl},
+                    success:function(result){
+                         alert(result.info);
+
+                         $("#imgUpload").val("");
+                         var file = $("#inputfile")
+                         file.after(file.clone(true, true).val(""));
+                         file.remove();
+                         $("#blogName").val("");
+                         $("#blogKeyword").val("");
+                         $("#blogContent").val("");
+                         $("#typeSelect option:selected").val("1");
+                         $("#groupSelect option:selected").val("1");
+                         $("#recIndexSelect option:selected").val("1");
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+          } else {
+             //为FormData对象添加数据
+             $.each($('#inputfile')[0].files, function(i, file) {
+                data.append('upload_file', file);
+             });
+             $.ajax({
+                 url:'/admin/img/upload',
+                 type:'POST',
+                 data:data,
+                 cache: false,
+                 dataType: "json",
+                 contentType: false,    //不可缺
+                 processData: false,    //不可缺
+                 success:function(result){
+                     // 图片上传成功，将blog写入数据库
+                     if(result.status == "1"){
+                         url = result.url;
+                         $.ajax({
+                            type:"POST",
+                            url:"add",
+                            dataType: "json",
+                            data: {blog_name:blogName, blog_keyword:blogKeyword, blog_content:blogContent, type_id:selectedTypeId,
+                                group_id:selectedGroupID, rec_index:selectedRecIndex, img_url: url},
+                            success:function(result){
+                                 alert(result.info);
+
+                                 $("#imgUpload").val("");
+                                 var file = $("#inputfile")
+                                 file.after(file.clone(true, true).val(""));
+                                 file.remove();
+                                 $("#blogName").val("");
+                                 $("#blogKeyword").val("");
+                                 $("#blogContent").val("");
+                                 $("#typeSelect option:selected").val("1");
+                                 $("#groupSelect option:selected").val("1");
+                                 $("#recIndexSelect option:selected").val("1");
+
+                                <!--location.href = "/admin/user"-->
+                            },
+                            error:function(data, status, result) {
+                                alert("出现错误：" + status);
+                            }
+                        });
+                     } else {
+                        alert(result.info);
+                     }
+                 },
+                 error:function(data, status, result) {
+                      alert("出现错误：" + status);
+                 }
+             });
+          }
+    }
+
+
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block content %}
+	<form class="form-inline definewidth m20" action="/admin/blog/search" method="post">
+        {% csrf_token %}
+    博客关键字：
+    <input id="txtKeyword" type="text" name="keywords" id="username" class="abc input-default" placeholder="请输入博客关键字..." value="">&nbsp;&nbsp;
+    <button id="btnSearch" type="submit" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+        <button type="button" class="btn btn-success" id="btnAddBlog">写博客</button>
+</form>
+<table class="table table-bordered table-hover definewidth m10">
+    <thead>
+    <tr>
+        <th>博客ID</th>
+        <th>博客名称</th>
+        <th>博客关键字</th>
+        <th>推荐指数</th>
+        <th>上传时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+
+       {% for blog in blog_list %}
+	     <tr>
+            <td>{{ blog.id }}</td>
+            <td>{{ blog.name }}</td>
+            <td>{{ blog.keywords }}</td>
+             <td>{{ blog.recommend_level }}星</td>
+            <td>{{ blog.upload_date|date:"Y-m-d H:i:s" }}</td>
+            <td>
+                <a href="/admin/blog/edit?id={{ blog.id }}">编辑</a>&nbsp;&nbsp;
+                <a href="#" id="btnDelete" onclick="javascript:deleteBlog({{ blog.id }})">删除</a>
+            </td>
+        </tr>
+     {% empty %}
+        <tr>
+            <td>当前暂无博客！</td>
+        </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+            $("#btnAddBlog").click(function(){
+                window.location.href = "/admin/blog/add";
+            })
+
+            $("#btnSearch").click(function(){
+                 keywords = $("#txtKeyword").val();
+                 if(isEmpty(keywords)){
+                    alert("搜索关键字不能为空！");
+                    return;
+                 }
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+
+        function deleteBlog(blogId){
+            if(isEmpty(blogId)){
+                alert("出现错误：待删除的博客ID不能为空！");
+                return;
+            }
+            result = confirm("是否确定删除该博客？");
+            if(result){
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/blog/delete",
+                    dataType: "json",
+                    data: {blog_id:blogId},
+                    success:function(result){
+                        alert(result.info);
+                        location.href = "blog"
+                    },
+                    error:function(data, status, result) {
+                        alert("出现错误：" + status);
+                    }
+                });
+            }
+        }
+</script>
+{% endblock %}
+

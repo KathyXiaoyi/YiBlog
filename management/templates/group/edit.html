@@ -1,0 +1,76 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+
+{% if group %}
+<table class="table table-bordered table-hover marginTopLeft">
+     {% csrf_token %}
+    <tr>
+        <td width="10%" class="tableleft" >原分组名</td>
+        <td>{{ group.group_name }}</td>
+    </tr>
+    <tr>
+        <td width="10%" class="tableleft">修给后分组名</td>
+        <td><input  id="newGroupName" type="text" name="grouptitle" value="{{ group.group_name }}" style="width:486px"/></td>
+    </tr>
+    <tr>
+        <td class="tableleft"></td>
+        <td>
+            <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+        </td>
+    </tr>
+</table>
+{% else %}
+    <script type="text/javascript">
+        alert("出现错误：找不到待编辑的分组！");
+        location.href = "/admin/group"
+    </script>
+{%  endif %}
+
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+
+            $("#btnSave").click(function(){
+                editGroup();
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+        <!--修改分组名称-->
+        function editGroup(){
+            newName = $("#newGroupName").val();
+            id = {{ group.id }}
+            if(isEmpty(newName)){
+                alert("修改后的分组名称不能为空！");
+                return;
+            }
+            $.ajax({
+                type:"POST",
+                url:"/admin/group/edit",
+                dataType: "json",
+                data: {group_id:id, new_name: newName},
+                success:function(result){
+                    alert(result.info);
+                    location.href = "/admin/group"
+                },
+                error:function(data, status, result) {
+                    alert("出现错误：" + status);
+                }
+            });
+
+        }
+</script>
+{% endblock %}

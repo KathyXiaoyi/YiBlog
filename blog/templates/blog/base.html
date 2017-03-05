@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312">
+<title>YiBlog - 小乙个人博客</title>
+<meta name="keywords" content="小乙的个人博客" />
+<meta name="description" content="小乙的个人博客" />
+<link href="../../static/css/base.css" rel="stylesheet">
+<link href="../../static/css/index.css" rel="stylesheet">
+<link href="../../static/css/media.css" rel="stylesheet">
+<link rel="stylesheet"
+	href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+<script
+	src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script
+	src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+	src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js">
+</script>
+	<script type="text/javascript" src="../../static/js/common.js"></script>
+
+{% load staticfiles %} {% block extracss %} {% endblock %}
+<meta name="viewport"
+	content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+<!--[if lt IE 9]>
+<script src="js/modernizr.js"></script>
+<![endif]-->
+
+</head>
+<body class="bodyBackgroud">
+	<div class="ibody">
+		<header>
+			<h1></h1>
+			<div class="logo">
+				<a href="/"></a>
+			</div>
+			<nav id="topnav">
+				<a href="/">首页</a>
+				<a href='blog'>所有博客</a>
+				<a href='about'>关于我</a>
+			</nav>
+		</header>
+		{% block content %} {% endblock %}
+		<aside>
+			<div class="avatar">
+				<a href='about'><span>关于小乙</span></a>
+			</div>
+			<div class="about_c">
+				<p>姓名：Lily | 苏小乙</p>
+				<p>职业：软件工程专业学生</p>
+				<p>籍贯：山东省—**市</p>
+				<p>电话：130********</p>
+				<p>邮箱：kathy_***@163.com</p>
+			</div>
+			<div>
+				<div class="row">
+					<div class="col-lg-11">
+						<div class="input-group" style="margin-left:15px">
+							<input id="txtKeyword" type="text" class="form-control" placeholder="请输入博客关键字">
+							<span class="input-group-btn">
+								<a href="#" id="btnSearch" class="btn btn-default"  type="button"> 搜博客</a>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--<div class="bdsharebuttonbox">-->
+				<!--<div class="row">-->
+					<!--<div class="col-lg-11">-->
+						<!--<div class="input-group">-->
+							<!--<input id="txtKeyword" type="text" class="form-control" placeholder="请输入博客关键字">-->
+							<!--<span class="input-group-btn">-->
+								<!--<a href="/blog?id=1" id="btnSearch" class="btn btn-default"  type="button"> 搜博客</a>-->
+							<!--</span>-->
+						<!--</div>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+			<div class="tj_news">
+				<h2>
+					<p class="tj_t1">博客分组</p>
+				</h2>
+				<ul>
+					{% for group in group_list %}
+						<li><a href="/blog?id={{ group.id }}">{{ group.group_name }}</a></li>
+					{% empty %}
+						<li><a href="/">暂无博客分组</a></li>
+					{% endfor %}
+				</ul>
+				<h2>
+					<p class="tj_t1">最新博客</p>
+				</h2>
+				<ul>
+					{% for blog in new_blog_list %}
+						<li><a href="/detail?id={{ blog.id }}">{{ blog.name }}</a></li>
+					{% empty %}
+						<li><a href="/">暂无最新博客</a></li>
+					{% endfor %}
+				</ul>
+				<h2>
+					<p class="tj_t1">推荐博客</p>
+				</h2>
+				<ul>
+					{% for blog in rec_blog_list %}
+						<li><a href="/detail?id={{ blog.id }}">{{ blog.name }}</a></li>
+					{% empty %}
+						<li><a href="/">暂无推荐博客</a></li>
+					{% endfor %}
+				</ul>
+			</div>
+
+			<div id="logIn" class="bdsharebuttonbox marginTop"
+				style="margin-top: 30px">
+				{% csrf_token %}
+				<div class="input-group marginTop">
+					<span class="input-group-addon">用户名</span>
+					<input id="userName" type="text" class="form-control" placeholder="admin">
+				</div>
+				<div class="input-group marginTop">
+					<span class="input-group-addon">密&nbsp;&nbsp;&nbsp;&nbsp;码</span>
+					<input type="password" id="password" class="form-control" placeholder="请输入密码">
+				</div>
+				<button id="btnLogin" type="submit"
+					class="btn btn-default marginTop btnLogin">管理员登录</button>
+			</div>
+
+			<div class="copyright">
+				<ul>
+					<p>
+						<a href="/">作者：苏小乙</a>
+					</p>
+					<p>北京大学软件与微电子学院</p>
+					</p>
+				</ul>
+			</div>
+		</aside>
+		<script src="../../static/js/silder.js"></script>
+		<script src="../../static/js/modernizr.js"></script>
+
+		<script>
+		function getCookie(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie != '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+
+		            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+
+			$.ajaxSetup({
+			  beforeSend: function(xhr, settings){
+			      var csrftoken = getCookie('csrftoken');
+			      xhr.setRequestHeader("X-CSRFToken", csrftoken);
+			  }
+			});
+
+			function searchBlog(){
+				var keywords = $("#txtKeyword").val();
+				if(isEmpty(keywords)){
+					alert("请输入博客关键字！");
+					return;
+				}
+				$("#btnSearch").attr("href","/blog?keyword="+keywords);
+			}
+
+			$(document).ready(function() {
+				$("#btnSearch").click(function(){
+					searchBlog();
+				})
+
+				$("#btnLogin").click(function() {
+					userName = $("#userName").val();
+					psw = $("#password").val();
+					if(isEmpty(userName)){
+						alert("请输入用户名！")
+						return;
+					}
+					if(isEmpty(psw)){
+						alert("请输入密码！")
+						return;
+					}
+
+				  	$.ajax({
+						type:"POST",
+						url:"login",
+						dataType: "json",
+						data: { username:userName, password:psw},
+						success:function(result){
+							if(result.status == "1"){
+								location.href = "admin/index?id="+result.userId;
+							} else {
+								alert(result.info);
+							}
+						},
+						error:function(data, status, result) {
+							debugger;
+							alert("出现错误：" + status);
+						}
+					});
+				});
+			});
+		</script>
+		<div class="clear"></div>
+		<!-- 清除浮动 -->
+	</div>
+{% block extrajs %} {% endblock %}
+</body>
+</html>

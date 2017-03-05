@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Yiguy博客后台管理系统</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="../../static/assets/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="../../static/assets/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="../../static/assets/css/main-min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="../../static/css/bootstrap-responsive.css" />
+    <link rel="stylesheet" type="text/css" href="../../static/css/style_admin.css" />
+
+    {% load staticfiles %} {% block extracss %} {% endblock %}
+</head>
+<body>
+
+<div class="content">
+{% block content %} {% endblock %}
+</div>
+
+<script type="text/javascript" src="../../static/assets/js/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="../../static/assets/js/bui-min.js"></script>
+<script type="text/javascript" src="../../static/assets/js/common/main-min.js"></script>
+<script type="text/javascript" src="../../static/assets/js/config-min.js"></script>
+<script type="text/javascript" src="../../static/js/common.js"></script>
+{% block extrajs %} {% endblock %}
+</body>
+</html>

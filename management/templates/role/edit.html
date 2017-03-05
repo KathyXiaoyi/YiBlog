@@ -1,0 +1,76 @@
+{% extends "public/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/base.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+
+{% if role %}
+    <table class="table table-bordered table-hover marginTopLeft">
+         {% csrf_token %}
+        <tr>
+            <td width="10%" class="tableleft">旧角色名</td>
+            <td>{{ role.role_name }}</td>
+        </tr>
+        <tr>
+            <td width="10%" class="tableleft">修改后角色名</td>
+            <td><input id="newRoleName" type="text" name="grouptitle" value="{{ role.role_name }}" style="width:486px"/></td>
+        </tr>
+        <tr>
+            <td class="tableleft"></td>
+            <td>
+                <button id="btnSave" type="submit" class="btn btn-primary" type="button">保存</button>
+            </td>
+        </tr>
+    </table>
+{% else %}
+    <script type="text/javascript">
+        alert("出现错误：找不到待编辑的角色！");
+        location.href = "role"
+    </script>
+{%  endif %}
+
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+
+       $(document).ready(function(){
+            $("#btnSave").click(function(){
+                editRole();
+            })
+       })
+
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings){
+              var csrftoken = getCookie('csrftoken');
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        });
+
+        <!--修改角色名称-->
+        function editRole(){
+            newName = $("#newRoleName").val();
+            id = {{ role.id }}
+            if(isEmpty(newName)){
+                alert("修改后的角色名称不能为空！");
+                return;
+            }
+            $.ajax({
+                type:"POST",
+                url:"edit",
+                dataType: "json",
+                data: {role_id:id, new_name: newName},
+                success:function(result){
+                    alert(result.info);
+                    location.href = "/admin/role"
+                },
+                error:function(data, status, result) {
+                    alert("出现错误：" + status);
+                }
+            });
+
+        }
+</script>
+{% endblock %}

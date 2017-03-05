@@ -1,0 +1,80 @@
+{% extends "blog/base.html" %}
+{% load staticfiles %}
+{% block extracss %}
+<link href="{% static '../../static/css/style.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+<div class="ibody">
+ {% if blog %}
+   <article>
+    <div class="index_about">
+      <h2 class="c_titile">{{ blog.name }}</h2>
+      <p class="box_c"><span class="d_time">发布时间：{{ blog.upload_date|date:"Y-m-d H:i:s" }}</span><span>作者：苏小乙</span></p>
+      <ul class="infos">
+        <p>{{ blog.content }}</p>
+      </ul>
+      <div class="keybq">
+        <p><span>关键字词</span>：{{ blog.keywords}}</p>
+      </div>
+      <div class="nextinfo">
+        {% if blog_last %}
+        <p>上一篇：<a href="/detail?id={{ blog_last.id }}" >{{ blog_last.name }} </a></p>
+        {% else %}
+        <p>上一篇：<a href="#">这是第一篇</a></p>
+        {% endif %}
+        {% if blog_next %}
+        <p>下一篇：<a href="/detail?id={{ blog_next.id }}">{{ blog_next.name }}</a></p>
+        {% else %}
+        <p>下一篇：<a href="#">这是最后一篇了</a></p>
+        {% endif %}
+      </div>
+      <div class="otherlink">
+        <h2>相关文章</h2>
+        <ul>
+          {% for blog_temp in blog_list %}
+            <li><a href="/detail?id={{ blog_temp.id }}"  title={{ blog_temp.name }}> {{ blog_temp.name }} </a></li>
+          {% empty %}
+            <p>没有相关文章</p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </article>
+  {% else %}
+    <p>无法获取博客信息!</p>
+  {% endif %}
+  </div>
+{% endblock %}
+
+  {% block extrajs %}
+<script type="text/javascript">
+    <!--function getCookie(name) {-->
+        <!--var cookieValue = null;-->
+        <!--if (document.cookie && document.cookie != '') {-->
+            <!--var cookies = document.cookie.split(';');-->
+            <!--for (var i = 0; i < cookies.length; i++) {-->
+                <!--var cookie = cookies[i].trim();-->
+                <!--if (cookie.substring(0, name.length + 1) == (name + '=')) {-->
+                    <!--cookieValue = decodeURIComponent(cookie.substring(name.length + 1));-->
+                    <!--break;-->
+                <!--}-->
+            <!--}-->
+        <!--}-->
+        <!--return cookieValue;-->
+    <!--}-->
+
+    <!--$.ajaxSetup({-->
+      <!--beforeSend: function(xhr, settings){-->
+          <!--var csrftoken = getCookie('csrftoken');-->
+          <!--xhr.setRequestHeader("X-CSRFToken", csrftoken);-->
+      <!--}-->
+    <!--});-->
+
+  $(document).ready(function() {
+     $("#topnav_current").attr("id","");
+     $("#topnav").append("<a id='topnav_current' href='#'>博客详情</a>");
+  })
+
+
+</script>
+{% endblock %}
